@@ -25,7 +25,8 @@ $(function(){
                     if(txt){
                         var nt = {
                             'text': txt,
-                            'id' : id
+                            'id' : id,
+                            'time': displayTime()
                         };
                        appendMain(nt);
                         socket.emit('input', nt);
@@ -40,7 +41,7 @@ $(function(){
                 });
                                 
                 var appendMain = function (t){
-                    var newText = ''+ t.id + ' ' + t.text;
+                    var newText = ''+ t.time + ' : ' + t.id + ' ' + t.text;
                      main.append( newText + '<br>');
                      main.scrollTop(main[0].scrollHeight);
                         if(t.id ==id){
@@ -48,5 +49,31 @@ $(function(){
                         }
                 }
                 
-              });
+                function displayTime() {
+                                var str = "";
+                            
+                                var currentTime = new Date()
+                                var hours = currentTime.getHours()
+                                var minutes = currentTime.getMinutes()
+                                var seconds = currentTime.getSeconds()
+                            
+                                if (minutes < 10) {
+                                    minutes = "0" + minutes
+                                }
+                                if (seconds < 10) {
+                                    seconds = "0" + seconds
+                                }
+                                str += hours + ":" + minutes + ":" + seconds + " ";
+                                if(hours > 11){
+                                    str += "PM"
+                                } else {
+                                    str += "AM"
+                                }
+                                return str;
+                            }
+                
+                
+                
+                
+});
              
