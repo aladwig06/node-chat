@@ -1,3 +1,9 @@
+/**
+ *
+ *  Todo check for user logged in and redirect if not
+ *
+ **/
+
 $(function(){
                 var url = 'http://localhost:8081';
                 var id = Math.round($.now()*Math.random());
@@ -8,18 +14,18 @@ $(function(){
                     input = $('#input_box'),
                     send = $('#send');
                 
-                //input.on('change', function (){
-                //    sendData();
-                //});
+                
                 input.bind('keypress', function(e){
                     if (e.keycode == 13 || e.which == 13){
                         e.preventDefault();
                         sendData();
                     }
                 });
+                
                 send.click(function(){
                     sendData();
                 });
+                
                 function sendData(){
                     var txt = input.val();
                     if(txt){
