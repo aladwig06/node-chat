@@ -31,3 +31,16 @@
     margin: 0 auto;
     width:100%;
 }
+#username{
+    margin: 0 auto;
+    width: 100%;
+    resize: none;
+}
+#login{
+    height:2em;
+    margin: 0 auto;
+    width:100%;
+}
+#logout{
+    
+}
