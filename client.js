@@ -5,29 +5,51 @@
  **/
 
 $(function(){
+    
+    var url = 'http://localhost:8081',
+        id = Math.round($.now()*Math.random()),
+        doc = $(document),
+        socket = io.connect(url),
+        main = $('#main_box'),
+        input = $('#input_box'),
+        send = $('#send'),
+        logout = $('#logout');
                 
     var user = getCookie();
     if (user == null){
        window.location.replace("http://localhost:8081/login.html");
     } else {
         $(".greeting").html("Hello " + user);
+        addUserToList(user);
+        socket.emit('needUserList');
+        
     }
     
-    var url = 'http://localhost:8081';
-    var id = Math.round($.now()*Math.random());
-    var clients = {};
+ 
+    socket.on('input', function (data){
+        if (data.id != id){
+            appendMain(data);
+        }
+    });
     
-    var doc = $(document),
-        socket = io.connect(url),
-        main = $('#main_box'),
-        input = $('#input_box'),
-        send = $('#send'),
-        logout = $('#logout');
+    socket.on('userUpdate', function(users){
+       var currentUsers = [];
+       for(var i = 0; i < users.length; i++){
+        currentUsers.push(users[i].name);
+       }
+       $(".current_users").html("Users online: " + currentUsers.join(', '));
+       console.log('currentUsers: ' + currentUsers.join(', '));
+    });
+    
+   
+    
     
     logout.click(function(){
        setCookie("andrewChat8080","", -1);
        window.location.replace("http://localhost:8081/login.html");
+       removeUserFromList(user);
     });
+    
     
     input.bind('keypress', function(e){
         if (e.keycode == 13 || e.which == 13){
@@ -36,9 +58,11 @@ $(function(){
         }
     });
     
+    
     send.click(function(){
         sendData();
     });
+    
     
     function sendData(){
         var txt = input.val();
@@ -53,12 +77,9 @@ $(function(){
         }
     }
     
+   
     
-    socket.on('input', function (data){
-        if (data.id != id){
-            appendMain(data);
-        }
-    });
+    
                     
     var appendMain = function (t){
         var newText = ''+ t.user + ' [' + t.time + ']' + ': ' + t.text;
@@ -68,6 +89,7 @@ $(function(){
                 input.val('');
             }
     }
+    
     
     function displayTime() {
         var str = "";
@@ -91,6 +113,7 @@ $(function(){
         return str;
     }
     
+    
     function getCookie(){
         var cookie = document.cookie;
         var cookieStart = cookie.indexOf(" " + "andrewChat8080" + "=");
@@ -110,12 +133,31 @@ $(function(){
         
         return cookie;
     }
+    
+    
     function setCookie(cookieName, value, exdays){
         var exdate = new Date();
         exdate.setDate(exdate.getDate() + exdays);
         var cookieValue = escape(value) + ((exdays==null)? "" : "; expires = "+exdate.toUTCString());
         document.cookie = cookieName + "=" + cookieValue;
     }
+    
+    
+    function addUserToList(user){
+        var newUser = {
+                "name": user
+            };
+        socket.emit('newUser', newUser);
                 
+    }
+    
+    
+    function removeFromUserList(user){
+        var userThatLeft = {
+            "name": user
+        };
+        socket.emit('userLeft', userThatLeft);
+    }
+    
 });
              

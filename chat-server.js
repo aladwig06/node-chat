@@ -16,6 +16,8 @@ var chatSchema = mongoose.Schema({
     time: String
 });
 
+var currentUsers = [];
+
 
 function handler (request, response) {
         request.addListener('end', function () {
@@ -35,7 +37,7 @@ db.once('open', function(){
     io.set('log level', 1);
 
     io.sockets.on('connection', function (socket) {
-        console.log('New Connection');
+        console.log('New Connection: ' + socket.id);
         
         socket.on('input', function (data){
             
@@ -57,13 +59,43 @@ db.once('open', function(){
         
             console.log("Emitting: " + data.text + " : " + data.time);        
         });
+        
+        socket.on('newUser', function(data){
+            console.log("new user received: " + socket.id);
+            var newUser = {
+                "id": socket.id,
+                "name": data.name
+            };
+            currentUsers.push(newUser);
+           
+            socket.broadcast.emit('userUpdate', currentUsers);
+            console.log('userArrival : ' + currentUsers[currentUsers.length -1]['id']);
+        });
+        
+        socket.on('needUserList', function(){
+           socket.emit('userUpdate', currentUsers); 
+        });
+        
+     
+        socket.on('disconnect', function(){
+            console.log(socket.id);
+           for (var i in currentUsers){
+            console.log("checking: " + currentUsers[i]['id'] + ' ' + i);
+  
+                if (currentUsers[i]['id'] == socket.id){
+                    currentUsers.splice(i,1);
+                    console.log('splicing')
+                }
+           }
+           socket.broadcast.emit('userUpdate', currentUsers);
+           
+        });
     
     });
 
 });
 
-    
-    
+
 
 
 
